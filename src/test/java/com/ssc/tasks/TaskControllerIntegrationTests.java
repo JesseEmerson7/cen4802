@@ -47,17 +47,21 @@ class TaskControllerIntegrationTests {
         mockMvc.perform(post("/api/tasks")
                 .contentType("application/json")
                 .content("{\"title\":\"Write documentation\"}"))
-            .andExpect(status().isOk())
-            .andExpect(jsonPath("$.title").value("Write documentation"))
-            .andExpect(jsonPath("$.done").value(false));
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.title").value("Write documentation"))
+                .andExpect(jsonPath("$.done").value(false));
 
         mockMvc.perform(put("/api/tasks/1/done"))
-            .andExpect(status().isOk())
-            .andExpect(jsonPath("$.done").value(true));
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.done").value(true));
+
+        mockMvc.perform(put("/api/tasks/1/undone"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.done").value(false));
 
         mockMvc.perform(get("/api/tasks"))
-            .andExpect(status().isOk())
-            .andExpect(jsonPath("$[0].title").value("Write documentation"))
-            .andExpect(jsonPath("$[0].done").value(true));
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$[0].title").value("Write documentation"))
+                .andExpect(jsonPath("$[0].done").value(false));
     }
 }

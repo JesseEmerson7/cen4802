@@ -32,7 +32,8 @@ public class TaskController {
         }
 
         List<Task> tasks = taskStorageService.loadTasks();
-        long nextId = tasks.stream().mapToLong(existingTask -> existingTask.getId() == null ? 0 : existingTask.getId()).max().orElse(0L) + 1;
+        long nextId = tasks.stream().mapToLong(existingTask -> existingTask.getId() == null ? 0 : existingTask.getId())
+                .max().orElse(0L) + 1;
 
         Task newTask = new Task(nextId, taskRequest.getTitle().trim(), false);
         tasks.add(newTask);
@@ -42,6 +43,15 @@ public class TaskController {
 
     @PutMapping("/tasks/{id}/done")
     public Task markTaskDone(@PathVariable Long id) {
+        return updateTaskStatus(id, true);
+    }
+
+    @PutMapping("/tasks/{id}/undone")
+    public Task markTaskUndone(@PathVariable Long id) {
+        return updateTaskStatus(id, false);
+    }
+
+    private Task updateTaskStatus(Long id, boolean done) {
         List<Task> tasks = taskStorageService.loadTasks();
 
         Task task = tasks.stream()
@@ -49,7 +59,7 @@ public class TaskController {
                 .findFirst()
                 .orElseThrow(() -> new IllegalArgumentException("Task not found: " + id));
 
-        task.setDone(true);
+        task.setDone(done);
         taskStorageService.saveTasks(tasks);
         return task;
     }
