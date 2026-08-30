@@ -1,0 +1,174 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Task Manager</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 700px;
+            margin: 40px auto;
+            background: #f5f7fb;
+            color: #1f2937;
+        }
+
+        .card {
+            background: white;
+            border-radius: 12px;
+            padding: 24px;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.08);
+        }
+
+        h1 {
+            margin-top: 0;
+        }
+
+        form {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+
+        input {
+            flex: 1;
+            padding: 10px 12px;
+            font-size: 16px;
+            border: 1px solid #d1d5db;
+            border-radius: 8px;
+        }
+
+        button {
+            border: none;
+            border-radius: 8px;
+            padding: 10px 18px;
+            cursor: pointer;
+            font-weight: 600;
+        }
+
+        .primary {
+            background: #2563eb;
+            color: white;
+        }
+
+        .done {
+            background: #e2e8f0;
+            color: #475569;
+        }
+
+        ul {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+        }
+
+        li {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 12px 0;
+            border-bottom: 1px solid #e5e7eb;
+        }
+
+        .task-title {
+            font-size: 18px;
+        }
+
+        .task-done .task-title {
+            text-decoration: line-through;
+            color: #64748b;
+        }
+
+        .error {
+            color: #b91c1c;
+            margin-bottom: 12px;
+            min-height: 20px;
+        }
+    </style>
+</head>
+<body>
+    <div class="card">
+        <h1>Task Manager</h1>
+
+        <form id="taskForm">
+            <input id="taskInput" type="text" placeholder="Add a task..." aria-label="Task title">
+            <button class="primary" type="submit">Add</button>
+        </form>
+
+        <div id="error" class="error"></div>
+
+        <ul id="taskList"></ul>
+    </div>
+
+    <script>
+        const taskForm = document.getElementById('taskForm');
+        const taskInput = document.getElementById('taskInput');
+        const taskList = document.getElementById('taskList');
+        const errorBox = document.getElementById('error');
+
+        async function loadTasks() {
+            const response = await fetch('/api/tasks');
+            const tasks = await response.json();
+            renderTasks(tasks);
+        }
+
+        function renderTasks(tasks) {
+            taskList.innerHTML = '';
+
+            tasks.forEach(task => {
+                const li = document.createElement('li');
+                li.className = task.done ? 'task-done' : 'task-not-done';
+
+                const text = document.createElement('span');
+                text.className = 'task-title';
+                text.textContent = task.title;
+
+                const button = document.createElement('button');
+                button.className = task.done ? 'done' : 'primary';
+                button.type = 'button';
+                button.textContent = task.done ? 'Done' : 'Mark done';
+                button.disabled = task.done;
+
+                button.addEventListener('click', async () => {
+                    const response = await fetch(`/api/tasks/${task.id}/done`, { method: 'PUT' });
+                    if (response.ok) {
+                        await loadTasks();
+                    }
+                });
+
+                li.appendChild(text);
+                li.appendChild(button);
+                taskList.appendChild(li);
+            });
+        }
+
+        taskForm.addEventListener('submit', async (event) => {
+            event.preventDefault();
+            const title = taskInput.value.trim();
+
+            if (!title) {
+                errorBox.textContent = 'Please enter a task title.';
+                return;
+            }
+
+            errorBox.textContent = '';
+
+            const response = await fetch('/api/tasks', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ title })
+            });
+
+            if (response.ok) {
+                taskInput.value = '';
+                await loadTasks();
+            } else {
+                const error = await response.text();
+                errorBox.textContent = error || 'Unable to add task.';
+            }
+        });
+
+        loadTasks();
+    </script>
+</body>
+</html>
