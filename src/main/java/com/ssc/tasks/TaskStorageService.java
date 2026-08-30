@@ -37,7 +37,8 @@ public class TaskStorageService {
                 return new ArrayList<>();
             }
 
-            return objectMapper.readValue(path.toFile(), new TypeReference<List<Task>>() {});
+            return objectMapper.readValue(path.toFile(), new TypeReference<List<Task>>() {
+            });
         } catch (IOException e) {
             throw new IllegalStateException("Unable to read tasks from " + storageFile, e);
         }
