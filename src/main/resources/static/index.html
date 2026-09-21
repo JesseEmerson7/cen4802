@@ -74,6 +74,18 @@
             font-size: 18px;
         }
 
+        .task-toggle {
+            width: 20px;
+            height: 20px;
+            margin: 0 12px 0 0;
+            cursor: pointer;
+        }
+
+        .task-content {
+            display: flex;
+            align-items: center;
+        }
+
         .task-done .task-title {
             text-decoration: line-through;
             color: #64748b;
@@ -119,22 +131,27 @@
                 const li = document.createElement('li');
                 li.className = task.done ? 'task-done' : 'task-not-done';
 
+                const content = document.createElement('div');
+                content.className = 'task-content';
+
+                const checkbox = document.createElement('input');
+                checkbox.className = 'task-toggle';
+                checkbox.type = 'checkbox';
+                checkbox.checked = task.done;
+                checkbox.setAttribute('aria-label', `Mark "${task.title}" as complete`);
+
                 const text = document.createElement('span');
                 text.className = 'task-title';
                 text.textContent = task.title;
 
-                const button = document.createElement('button');
-                button.className = task.done ? 'done' : 'primary';
-                button.type = 'button';
-                button.textContent = task.done ? 'Mark active' : 'Mark done';
-
-                button.addEventListener('click', async () => {
+                checkbox.addEventListener('change', async () => {
                     const endpoint = task.done ? `/api/tasks/${task.id}/undone` : `/api/tasks/${task.id}/done`;
                     const response = await fetch(endpoint, { method: 'PUT' });
 
                     if (!response.ok) {
                         const text = await response.text();
                         errorBox.textContent = text || 'Could not update task.';
+                        checkbox.checked = task.done;
                         return;
                     }
 
@@ -142,8 +159,9 @@
                     await loadTasks();
                 });
 
-                li.appendChild(text);
-                li.appendChild(button);
+                content.appendChild(checkbox);
+                content.appendChild(text);
+                li.appendChild(content);
                 taskList.appendChild(li);
             });
         }
