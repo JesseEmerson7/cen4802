@@ -12,6 +12,7 @@ Project Link: [https://github.com](https://github.com)
 
 ## Continuous Integration
 
-GitHub Actions runs the existing Gradle build for every push and pull request.
-The workflow compiles the application, runs the JUnit tests, packages the Spring
-Boot application as a JAR, and uploads the JAR as a workflow artifact.
+Jenkins uses the `Jenkinsfile` in this repository to run the existing Gradle
+build. The pipeline compiles the application, runs the JUnit tests, packages the
+Spring Boot application as a JAR, publishes the test results, and archives the
+JAR as a build artifact.
