@@ -96,18 +96,6 @@
             margin-bottom: 12px;
             min-height: 20px;
         }
-		
-		/*Delete button feature*/
-		.delete-button {
-		    background: #dc2626;
-		    color: white;
-		    margin-left: 12px;
-		}
-
-		.delete-button:hover {
-		    background: #b91c1c;
-		}
-
     </style>
 </head>
 <body>
@@ -150,26 +138,6 @@
                 const checkbox = document.createElement('input');
                 checkbox.className = 'task-toggle';
                 checkbox.type = 'checkbox';
-				const deleteButton = document.createElement('button');
-				deleteButton.className = 'delete-button';
-				deleteButton.type = 'button';
-				deleteButton.textContent = 'Delete';
-				deleteButton.setAttribute('aria-label', `Delete "${task.title}"`);
-
-				deleteButton.addEventListener('click', async () => {
-				    const response = await fetch(`/api/tasks/${task.id}`, {
-				        method: 'DELETE'
-				    });
-
-				    if (!response.ok) {
-				        const error = await response.text();
-				        errorBox.textContent = error || 'Could not delete task.';
-				        return;
-				    }
-
-				    errorBox.textContent = '';
-				    await loadTasks();
-				});
                 checkbox.checked = task.done;
                 checkbox.setAttribute('aria-label', `Mark "${task.title}" as complete`);
 
@@ -195,8 +163,6 @@
                 content.appendChild(checkbox);
                 content.appendChild(text);
                 li.appendChild(content);
-				li.appendChild(deleteButton);
-				
                 taskList.appendChild(li);
             });
         }

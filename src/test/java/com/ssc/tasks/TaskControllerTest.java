@@ -80,27 +80,4 @@ class TaskControllerTest {
 
         assertEquals("Task not found: 99", exception.getMessage());
     }
-    
-    //Verifies delete button works correctly.
-    @Test
-    void shouldDeleteExistingTask() {
-        Task task = new Task(1L, "Delete this task", false);
-        tasks.add(task);
-
-        controller.deleteTask(1L);
-
-        assertTrue(tasks.isEmpty());
-        verify(storageService).saveTasks(tasks);
-    }
-
-  //Verifies that the delete exception works correctly.
-    @Test
-    void shouldRejectDeletingUnknownTaskId() {
-        IllegalArgumentException exception = assertThrows(
-                IllegalArgumentException.class,
-                () -> controller.deleteTask(99L));
-
-        assertEquals("Task not found: 99", exception.getMessage());
-    }
-    
 }
