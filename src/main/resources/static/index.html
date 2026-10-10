@@ -86,6 +86,23 @@
             align-items: center;
         }
 
+        .task-actions {
+            display: flex;
+            align-items: center;
+        }
+
+        .favorite-button {
+            background: transparent;
+            color: #94a3b8;
+            font-size: 24px;
+            line-height: 1;
+            padding: 4px 8px;
+        }
+
+        .favorite-button.is-favorite {
+            color: #eab308;
+        }
+
         .task-done .task-title {
             text-decoration: line-through;
             color: #64748b;
@@ -145,6 +162,34 @@
                 text.className = 'task-title';
                 text.textContent = task.title;
 
+                const actions = document.createElement('div');
+                actions.className = 'task-actions';
+
+                const favoriteButton = document.createElement('button');
+                favoriteButton.className = task.favorite ? 'favorite-button is-favorite' : 'favorite-button';
+                favoriteButton.type = 'button';
+                favoriteButton.textContent = task.favorite ? '★' : '☆';
+                favoriteButton.setAttribute(
+                    'aria-label',
+                    task.favorite ? `Unfavorite "${task.title}"` : `Favorite "${task.title}"`
+                );
+
+                favoriteButton.addEventListener('click', async () => {
+                    const endpoint = task.favorite
+                        ? `/api/tasks/${task.id}/unfavorite`
+                        : `/api/tasks/${task.id}/favorite`;
+                    const response = await fetch(endpoint, { method: 'PUT' });
+
+                    if (!response.ok) {
+                        const error = await response.text();
+                        errorBox.textContent = error || 'Could not update favorite status.';
+                        return;
+                    }
+
+                    errorBox.textContent = '';
+                    await loadTasks();
+                });
+
                 checkbox.addEventListener('change', async () => {
                     const endpoint = task.done ? `/api/tasks/${task.id}/undone` : `/api/tasks/${task.id}/done`;
                     const response = await fetch(endpoint, { method: 'PUT' });
@@ -163,6 +208,8 @@
                 content.appendChild(checkbox);
                 content.appendChild(text);
                 li.appendChild(content);
+                actions.appendChild(favoriteButton);
+                li.appendChild(actions);
                 taskList.appendChild(li);
             });
         }

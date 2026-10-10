@@ -5,6 +5,7 @@ public class Task {
     private Long id;
     private String title;
     private boolean done = false;
+    private boolean favorite = false;
 
     public Task() {
     }
@@ -13,6 +14,13 @@ public class Task {
         this.id = id;
         this.title = title;
         this.done = done;
+    }
+
+    public Task(Long id, String title, boolean done, boolean favorite) {
+        this.id = id;
+        this.title = title;
+        this.done = done;
+        this.favorite = favorite;
     }
 
     public Long getId() {
@@ -37,5 +45,13 @@ public class Task {
 
     public void setDone(boolean done) {
         this.done = done;
+    }
+
+    public boolean isFavorite() {
+        return favorite;
+    }
+
+    public void setFavorite(boolean favorite) {
+        this.favorite = favorite;
     }
 }

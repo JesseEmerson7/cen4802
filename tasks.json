@@ -1,3 +1,1 @@
-
-[{"id":1,"title":"Write documentation","done":false},{"id":2,"title":"Complete Assignment 1","done":true},{"id":3,"title":"Complete step 5 - Updated Application","done":true}]
-
+[{"done":false,"favorite":false,"id":2,"title":"Complete Assignment 1"},{"done":false,"favorite":false,"id":1,"title":"Write documentation"},{"done":false,"favorite":false,"id":3,"title":"Complete step 5 - Updated Application"}]
