@@ -8,6 +8,7 @@ on:
 
 permissions:
   contents: read
+  packages: write
 
 jobs:
   build-test-package:
@@ -35,3 +36,22 @@ jobs:
           name: tasks-application
           path: build/libs/*.jar
           if-no-files-found: error
+
+      - name: Build Docker image
+        env:
+          IMAGE: ghcr.io/jesseemerson7/tasks:${{ github.sha }}
+        run: docker build --tag "$IMAGE" .
+
+      - name: Log in to GitHub Container Registry
+        if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+        uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Publish Docker image
+        if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+        env:
+          IMAGE: ghcr.io/jesseemerson7/tasks:${{ github.sha }}
+        run: docker push "$IMAGE"
