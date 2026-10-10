@@ -51,6 +51,34 @@ public class TaskController {
         return updateTaskStatus(id, false);
     }
 
+    @PutMapping("/tasks/{id}/favorite")
+    public Task markTaskFavorite(@PathVariable Long id) {
+        return updateTaskFavorite(id, true);
+    }
+
+    @PutMapping("/tasks/{id}/unfavorite")
+    public Task markTaskUnfavorite(@PathVariable Long id) {
+        return updateTaskFavorite(id, false);
+    }
+
+    private Task updateTaskFavorite(Long id, boolean favorite) {
+        List<Task> tasks = taskStorageService.loadTasks();
+
+        Task task = tasks.stream()
+                .filter(existingTask -> existingTask.getId() != null && existingTask.getId().equals(id))
+                .findFirst()
+                .orElseThrow(() -> new IllegalArgumentException("Task not found: " + id));
+
+        task.setFavorite(favorite);
+        if (favorite) {
+            tasks.remove(task);
+            tasks.add(0, task);
+        }
+
+        taskStorageService.saveTasks(tasks);
+        return task;
+    }
+
     private Task updateTaskStatus(Long id, boolean done) {
         List<Task> tasks = taskStorageService.loadTasks();
 

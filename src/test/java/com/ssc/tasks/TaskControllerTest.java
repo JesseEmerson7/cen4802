@@ -80,4 +80,29 @@ class TaskControllerTest {
 
         assertEquals("Task not found: 99", exception.getMessage());
     }
+
+    //favorite tests
+    @Test
+    void shouldFavoriteTaskAndMoveItToTop() {
+        Task firstTask = new Task(1L, "First task", false);
+        Task secondTask = new Task(2L, "Favorite task", false);
+        tasks.add(firstTask);
+        tasks.add(secondTask);
+
+        Task result = controller.markTaskFavorite(2L);
+
+        assertTrue(result.isFavorite());
+        assertEquals(2L, tasks.get(0).getId());
+        assertEquals(1L, tasks.get(1).getId());
+        verify(storageService).saveTasks(tasks);
+    }
+
+    @Test
+    void shouldRejectFavoritingUnknownTaskId() {
+        IllegalArgumentException exception = assertThrows(
+                IllegalArgumentException.class,
+                () -> controller.markTaskFavorite(99L));
+
+        assertEquals("Task not found: 99", exception.getMessage());
+    }
 }
