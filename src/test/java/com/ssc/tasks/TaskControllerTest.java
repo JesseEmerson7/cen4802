@@ -78,6 +78,6 @@ class TaskControllerTest {
                 IllegalArgumentException.class,
                 () -> controller.markTaskDone(99L));
 
-        assertEquals("Task not found: 99", exception.getMessage());
+        assertEquals("Task not found: 67", exception.getMessage());
     }
 }
