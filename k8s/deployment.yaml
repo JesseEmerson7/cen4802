@@ -1,0 +1,23 @@
+
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: tasks
+  labels:
+    app: tasks
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: tasks
+  template:
+    metadata:
+      labels:
+        app: tasks
+    spec:
+      containers:
+        - name: tasks
+          image: ghcr.io/jesseemerson7/tasks:ce3f3831eece6756f7a70d2907fa268f8c264588
+          imagePullPolicy: IfNotPresent
+          ports:
+            - containerPort: 8080
