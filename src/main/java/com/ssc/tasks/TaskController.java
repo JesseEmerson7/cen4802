@@ -9,10 +9,14 @@ import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 @RestController
 @RequestMapping("/api")
 public class TaskController {
+
+    private static final Logger logger = LoggerFactory.getLogger(TaskController.class);
 
     private final TaskStorageService taskStorageService;
 
@@ -22,12 +26,15 @@ public class TaskController {
 
     @GetMapping("/tasks")
     public List<Task> getTasks() {
-        return taskStorageService.loadTasks();
+        List<Task> tasks = taskStorageService.loadTasks();
+        logger.info("Listed {} tasks", tasks.size());
+        return tasks;
     }
 
     @PostMapping("/tasks")
     public Task addTask(@RequestBody TaskRequest taskRequest) {
         if (taskRequest == null || taskRequest.getTitle() == null || taskRequest.getTitle().isBlank()) {
+            logger.warn("Rejected task creation because the title was blank");
             throw new IllegalArgumentException("Task title is required");
         }
 
@@ -38,6 +45,7 @@ public class TaskController {
         Task newTask = new Task(nextId, taskRequest.getTitle().trim(), false);
         tasks.add(newTask);
         taskStorageService.saveTasks(tasks);
+        logger.info("Created task id={} title='{}'", newTask.getId(), newTask.getTitle());
         return newTask;
     }
 
@@ -67,7 +75,10 @@ public class TaskController {
         Task task = tasks.stream()
                 .filter(existingTask -> existingTask.getId() != null && existingTask.getId().equals(id))
                 .findFirst()
-                .orElseThrow(() -> new IllegalArgumentException("Task not found: " + id));
+                .orElseThrow(() -> {
+                    logger.warn("Cannot set favorite={} because task id={} was not found", favorite, id);
+                    return new IllegalArgumentException("Task not found: " + id);
+                });
 
         task.setFavorite(favorite);
         if (favorite) {
@@ -76,6 +87,7 @@ public class TaskController {
         }
 
         taskStorageService.saveTasks(tasks);
+        logger.info("Updated favorite={} for task id={}", favorite, id);
         return task;
     }
 
@@ -85,10 +97,14 @@ public class TaskController {
         Task task = tasks.stream()
                 .filter(existingTask -> existingTask.getId() != null && existingTask.getId().equals(id))
                 .findFirst()
-                .orElseThrow(() -> new IllegalArgumentException("Task not found: " + id));
+                .orElseThrow(() -> {
+                    logger.warn("Cannot set done={} because task id={} was not found", done, id);
+                    return new IllegalArgumentException("Task not found: " + id);
+                });
 
         task.setDone(done);
         taskStorageService.saveTasks(tasks);
+        logger.info("Updated done={} for task id={}", done, id);
         return task;
     }
 }
